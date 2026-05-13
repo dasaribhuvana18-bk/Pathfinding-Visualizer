@@ -1,0 +1,305 @@
+<html>
+<head>
+<title>Main.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #2aacb8;}
+.s5 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#191a1c">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Main.java</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">LinkedList</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">Queue</span><span class="s2">;</span>
+
+<span class="s0">public class </span><span class="s1">Main </span><span class="s0">extends </span><span class="s1">JPanel </span><span class="s0">implements </span><span class="s1">MouseListener</span><span class="s2">, </span><span class="s1">KeyListener </span><span class="s2">{</span>
+
+    <span class="s3">// Grid Settings</span>
+    <span class="s0">private final int </span><span class="s1">ROWS </span><span class="s2">= </span><span class="s4">20</span><span class="s2">;</span>
+    <span class="s0">private final int </span><span class="s1">COLS </span><span class="s2">= </span><span class="s4">20</span><span class="s2">;</span>
+    <span class="s0">private final int </span><span class="s1">SIZE </span><span class="s2">= </span><span class="s4">30</span><span class="s2">;</span>
+
+    <span class="s3">// Node Class</span>
+    <span class="s0">class </span><span class="s1">Node </span><span class="s2">{</span>
+        <span class="s0">int </span><span class="s1">row</span><span class="s2">, </span><span class="s1">col</span><span class="s2">;</span>
+
+        <span class="s0">boolean </span><span class="s1">visited</span><span class="s2">;</span>
+        <span class="s0">boolean </span><span class="s1">wall</span><span class="s2">;</span>
+        <span class="s0">boolean </span><span class="s1">path</span><span class="s2">;</span>
+
+        <span class="s1">Node parent</span><span class="s2">;</span>
+
+        <span class="s1">Node</span><span class="s2">(</span><span class="s0">int </span><span class="s1">row</span><span class="s2">, </span><span class="s0">int </span><span class="s1">col</span><span class="s2">) {</span>
+            <span class="s0">this</span><span class="s2">.</span><span class="s1">row </span><span class="s2">= </span><span class="s1">row</span><span class="s2">;</span>
+            <span class="s0">this</span><span class="s2">.</span><span class="s1">col </span><span class="s2">= </span><span class="s1">col</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Grid</span>
+    <span class="s0">private </span><span class="s1">Node</span><span class="s2">[][] </span><span class="s1">grid</span><span class="s2">;</span>
+
+    <span class="s3">// Start &amp; End Nodes</span>
+    <span class="s0">private </span><span class="s1">Node start</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Node end</span><span class="s2">;</span>
+
+    <span class="s3">// Constructor</span>
+    <span class="s0">public </span><span class="s1">Main</span><span class="s2">() {</span>
+
+        <span class="s1">setPreferredSize</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Dimension</span><span class="s2">(</span><span class="s1">COLS </span><span class="s2">* </span><span class="s1">SIZE</span><span class="s2">, </span><span class="s1">ROWS </span><span class="s2">* </span><span class="s1">SIZE</span><span class="s2">));</span>
+
+        <span class="s1">grid </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Node</span><span class="s2">[</span><span class="s1">ROWS</span><span class="s2">][</span><span class="s1">COLS</span><span class="s2">];</span>
+
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">r </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">r </span><span class="s2">&lt; </span><span class="s1">ROWS</span><span class="s2">; </span><span class="s1">r</span><span class="s2">++) {</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">c </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">c </span><span class="s2">&lt; </span><span class="s1">COLS</span><span class="s2">; </span><span class="s1">c</span><span class="s2">++) {</span>
+                <span class="s1">grid</span><span class="s2">[</span><span class="s1">r</span><span class="s2">][</span><span class="s1">c</span><span class="s2">] = </span><span class="s0">new </span><span class="s1">Node</span><span class="s2">(</span><span class="s1">r</span><span class="s2">, </span><span class="s1">c</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// Start and End Positions</span>
+        <span class="s1">start </span><span class="s2">= </span><span class="s1">grid</span><span class="s2">[</span><span class="s4">2</span><span class="s2">][</span><span class="s4">2</span><span class="s2">];</span>
+        <span class="s1">end </span><span class="s2">= </span><span class="s1">grid</span><span class="s2">[</span><span class="s4">15</span><span class="s2">][</span><span class="s4">15</span><span class="s2">];</span>
+
+        <span class="s1">addMouseListener</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+        <span class="s1">addKeyListener</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+
+        <span class="s1">setFocusable</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Paint Grid</span>
+    <span class="s1">@Override</span>
+    <span class="s0">protected void </span><span class="s1">paintComponent</span><span class="s2">(</span><span class="s1">Graphics g</span><span class="s2">) {</span>
+
+        <span class="s0">super</span><span class="s2">.</span><span class="s1">paintComponent</span><span class="s2">(</span><span class="s1">g</span><span class="s2">);</span>
+
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">r </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">r </span><span class="s2">&lt; </span><span class="s1">ROWS</span><span class="s2">; </span><span class="s1">r</span><span class="s2">++) {</span>
+
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">c </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">c </span><span class="s2">&lt; </span><span class="s1">COLS</span><span class="s2">; </span><span class="s1">c</span><span class="s2">++) {</span>
+
+                <span class="s1">Node node </span><span class="s2">= </span><span class="s1">grid</span><span class="s2">[</span><span class="s1">r</span><span class="s2">][</span><span class="s1">c</span><span class="s2">];</span>
+
+                <span class="s3">// Colors</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">node </span><span class="s2">== </span><span class="s1">start</span><span class="s2">) {</span>
+                    <span class="s1">g</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">GREEN</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">node </span><span class="s2">== </span><span class="s1">end</span><span class="s2">) {</span>
+                    <span class="s1">g</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">RED</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">node</span><span class="s2">.</span><span class="s1">path</span><span class="s2">) {</span>
+                    <span class="s1">g</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">YELLOW</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">node</span><span class="s2">.</span><span class="s1">wall</span><span class="s2">) {</span>
+                    <span class="s1">g</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">BLACK</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">node</span><span class="s2">.</span><span class="s1">visited</span><span class="s2">) {</span>
+                    <span class="s1">g</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">CYAN</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else </span><span class="s2">{</span>
+                    <span class="s1">g</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">WHITE</span><span class="s2">);</span>
+                <span class="s2">}</span>
+
+                <span class="s3">// Draw Cell</span>
+                <span class="s1">g</span><span class="s2">.</span><span class="s1">fillRect</span><span class="s2">(</span><span class="s1">c </span><span class="s2">* </span><span class="s1">SIZE</span><span class="s2">, </span><span class="s1">r </span><span class="s2">* </span><span class="s1">SIZE</span><span class="s2">, </span><span class="s1">SIZE</span><span class="s2">, </span><span class="s1">SIZE</span><span class="s2">);</span>
+
+                <span class="s3">// Grid Border</span>
+                <span class="s1">g</span><span class="s2">.</span><span class="s1">setColor</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">GRAY</span><span class="s2">);</span>
+                <span class="s1">g</span><span class="s2">.</span><span class="s1">drawRect</span><span class="s2">(</span><span class="s1">c </span><span class="s2">* </span><span class="s1">SIZE</span><span class="s2">, </span><span class="s1">r </span><span class="s2">* </span><span class="s1">SIZE</span><span class="s2">, </span><span class="s1">SIZE</span><span class="s2">, </span><span class="s1">SIZE</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s1">repaint</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Clear Grid</span>
+    <span class="s0">private void </span><span class="s1">clearGrid</span><span class="s2">() {</span>
+
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">r </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">r </span><span class="s2">&lt; </span><span class="s1">ROWS</span><span class="s2">; </span><span class="s1">r</span><span class="s2">++) {</span>
+
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">c </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">c </span><span class="s2">&lt; </span><span class="s1">COLS</span><span class="s2">; </span><span class="s1">c</span><span class="s2">++) {</span>
+
+                <span class="s1">grid</span><span class="s2">[</span><span class="s1">r</span><span class="s2">][</span><span class="s1">c</span><span class="s2">].</span><span class="s1">visited </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+                <span class="s1">grid</span><span class="s2">[</span><span class="s1">r</span><span class="s2">][</span><span class="s1">c</span><span class="s2">].</span><span class="s1">path </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+                <span class="s1">grid</span><span class="s2">[</span><span class="s1">r</span><span class="s2">][</span><span class="s1">c</span><span class="s2">].</span><span class="s1">parent </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// BFS Algorithm</span>
+    <span class="s0">private void </span><span class="s1">bfs</span><span class="s2">() {</span>
+
+        <span class="s1">clearGrid</span><span class="s2">();</span>
+
+        <span class="s1">Queue</span><span class="s2">&lt;</span><span class="s1">Node</span><span class="s2">&gt; </span><span class="s1">queue </span><span class="s2">= </span><span class="s0">new </span><span class="s1">LinkedList</span><span class="s2">&lt;&gt;();</span>
+
+        <span class="s1">start</span><span class="s2">.</span><span class="s1">visited </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+        <span class="s1">queue</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">start</span><span class="s2">);</span>
+
+        <span class="s0">int</span><span class="s2">[] </span><span class="s1">dr </span><span class="s2">= {-</span><span class="s4">1</span><span class="s2">, </span><span class="s4">1</span><span class="s2">, </span><span class="s4">0</span><span class="s2">, </span><span class="s4">0</span><span class="s2">};</span>
+        <span class="s0">int</span><span class="s2">[] </span><span class="s1">dc </span><span class="s2">= {</span><span class="s4">0</span><span class="s2">, </span><span class="s4">0</span><span class="s2">, -</span><span class="s4">1</span><span class="s2">, </span><span class="s4">1</span><span class="s2">};</span>
+
+        <span class="s0">while </span><span class="s2">(!</span><span class="s1">queue</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">()) {</span>
+
+            <span class="s1">Node current </span><span class="s2">= </span><span class="s1">queue</span><span class="s2">.</span><span class="s1">poll</span><span class="s2">();</span>
+
+            <span class="s3">// End Found</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">current </span><span class="s2">== </span><span class="s1">end</span><span class="s2">) {</span>
+                <span class="s1">createPath</span><span class="s2">(</span><span class="s1">end</span><span class="s2">);</span>
+                <span class="s0">return</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// Explore Neighbors</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s4">4</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++) {</span>
+
+                <span class="s0">int </span><span class="s1">nr </span><span class="s2">= </span><span class="s1">current</span><span class="s2">.</span><span class="s1">row </span><span class="s2">+ </span><span class="s1">dr</span><span class="s2">[</span><span class="s1">i</span><span class="s2">];</span>
+                <span class="s0">int </span><span class="s1">nc </span><span class="s2">= </span><span class="s1">current</span><span class="s2">.</span><span class="s1">col </span><span class="s2">+ </span><span class="s1">dc</span><span class="s2">[</span><span class="s1">i</span><span class="s2">];</span>
+
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">isValid</span><span class="s2">(</span><span class="s1">nr</span><span class="s2">, </span><span class="s1">nc</span><span class="s2">)) {</span>
+
+                    <span class="s1">Node neighbor </span><span class="s2">= </span><span class="s1">grid</span><span class="s2">[</span><span class="s1">nr</span><span class="s2">][</span><span class="s1">nc</span><span class="s2">];</span>
+
+                    <span class="s0">if </span><span class="s2">(!</span><span class="s1">neighbor</span><span class="s2">.</span><span class="s1">visited </span><span class="s2">&amp;&amp; !</span><span class="s1">neighbor</span><span class="s2">.</span><span class="s1">wall</span><span class="s2">) {</span>
+
+                        <span class="s1">neighbor</span><span class="s2">.</span><span class="s1">visited </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+                        <span class="s1">neighbor</span><span class="s2">.</span><span class="s1">parent </span><span class="s2">= </span><span class="s1">current</span><span class="s2">;</span>
+
+                        <span class="s1">queue</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">neighbor</span><span class="s2">);</span>
+
+                        <span class="s1">repaint</span><span class="s2">();</span>
+
+                        <span class="s0">try </span><span class="s2">{</span>
+                            <span class="s1">Thread</span><span class="s2">.</span><span class="s1">sleep</span><span class="s2">(</span><span class="s4">30</span><span class="s2">);</span>
+                        <span class="s2">}</span>
+                        <span class="s0">catch </span><span class="s2">(</span><span class="s1">Exception e</span><span class="s2">) {</span>
+                            <span class="s1">e</span><span class="s2">.</span><span class="s1">printStackTrace</span><span class="s2">();</span>
+                        <span class="s2">}</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Create Final Path</span>
+    <span class="s0">private void </span><span class="s1">createPath</span><span class="s2">(</span><span class="s1">Node end</span><span class="s2">) {</span>
+
+        <span class="s1">Node current </span><span class="s2">= </span><span class="s1">end</span><span class="s2">;</span>
+
+        <span class="s0">while </span><span class="s2">(</span><span class="s1">current </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+
+            <span class="s1">current</span><span class="s2">.</span><span class="s1">path </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+
+            <span class="s1">current </span><span class="s2">= </span><span class="s1">current</span><span class="s2">.</span><span class="s1">parent</span><span class="s2">;</span>
+
+            <span class="s1">repaint</span><span class="s2">();</span>
+
+            <span class="s0">try </span><span class="s2">{</span>
+                <span class="s1">Thread</span><span class="s2">.</span><span class="s1">sleep</span><span class="s2">(</span><span class="s4">50</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">catch </span><span class="s2">(</span><span class="s1">Exception e</span><span class="s2">) {</span>
+                <span class="s1">e</span><span class="s2">.</span><span class="s1">printStackTrace</span><span class="s2">();</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Check Valid Cell</span>
+    <span class="s0">private boolean </span><span class="s1">isValid</span><span class="s2">(</span><span class="s0">int </span><span class="s1">r</span><span class="s2">, </span><span class="s0">int </span><span class="s1">c</span><span class="s2">) {</span>
+        <span class="s0">return </span><span class="s1">r </span><span class="s2">&gt;= </span><span class="s4">0 </span><span class="s2">&amp;&amp; </span><span class="s1">c </span><span class="s2">&gt;= </span><span class="s4">0 </span><span class="s2">&amp;&amp; </span><span class="s1">r </span><span class="s2">&lt; </span><span class="s1">ROWS </span><span class="s2">&amp;&amp; </span><span class="s1">c </span><span class="s2">&lt; </span><span class="s1">COLS</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Mouse Click -&gt; Add Walls</span>
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">mousePressed</span><span class="s2">(</span><span class="s1">MouseEvent e</span><span class="s2">) {</span>
+
+        <span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s1">e</span><span class="s2">.</span><span class="s1">getX</span><span class="s2">() / </span><span class="s1">SIZE</span><span class="s2">;</span>
+        <span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s1">e</span><span class="s2">.</span><span class="s1">getY</span><span class="s2">() / </span><span class="s1">SIZE</span><span class="s2">;</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">row </span><span class="s2">&gt;= </span><span class="s1">ROWS </span><span class="s2">|| </span><span class="s1">col </span><span class="s2">&gt;= </span><span class="s1">COLS</span><span class="s2">) {</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">Node node </span><span class="s2">= </span><span class="s1">grid</span><span class="s2">[</span><span class="s1">row</span><span class="s2">][</span><span class="s1">col</span><span class="s2">];</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">node </span><span class="s2">!= </span><span class="s1">start </span><span class="s2">&amp;&amp; </span><span class="s1">node </span><span class="s2">!= </span><span class="s1">end</span><span class="s2">) {</span>
+            <span class="s1">node</span><span class="s2">.</span><span class="s1">wall </span><span class="s2">= !</span><span class="s1">node</span><span class="s2">.</span><span class="s1">wall</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">repaint</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Key Controls</span>
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">keyPressed</span><span class="s2">(</span><span class="s1">KeyEvent e</span><span class="s2">) {</span>
+
+        <span class="s3">// SPACE -&gt; Start BFS</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">e</span><span class="s2">.</span><span class="s1">getKeyCode</span><span class="s2">() == </span><span class="s1">KeyEvent</span><span class="s2">.</span><span class="s1">VK_SPACE</span><span class="s2">) {</span>
+
+            <span class="s0">new </span><span class="s1">Thread</span><span class="s2">(() </span><span class="s1">-&gt; bfs</span><span class="s2">()).</span><span class="s1">start</span><span class="s2">();</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// C -&gt; Clear All</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">e</span><span class="s2">.</span><span class="s1">getKeyCode</span><span class="s2">() == </span><span class="s1">KeyEvent</span><span class="s2">.</span><span class="s1">VK_C</span><span class="s2">) {</span>
+
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">r </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">r </span><span class="s2">&lt; </span><span class="s1">ROWS</span><span class="s2">; </span><span class="s1">r</span><span class="s2">++) {</span>
+
+                <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">c </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">c </span><span class="s2">&lt; </span><span class="s1">COLS</span><span class="s2">; </span><span class="s1">c</span><span class="s2">++) {</span>
+
+                    <span class="s1">grid</span><span class="s2">[</span><span class="s1">r</span><span class="s2">][</span><span class="s1">c</span><span class="s2">].</span><span class="s1">wall </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+                    <span class="s1">grid</span><span class="s2">[</span><span class="s1">r</span><span class="s2">][</span><span class="s1">c</span><span class="s2">].</span><span class="s1">visited </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+                    <span class="s1">grid</span><span class="s2">[</span><span class="s1">r</span><span class="s2">][</span><span class="s1">c</span><span class="s2">].</span><span class="s1">path </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+                    <span class="s1">grid</span><span class="s2">[</span><span class="s1">r</span><span class="s2">][</span><span class="s1">c</span><span class="s2">].</span><span class="s1">parent </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+
+            <span class="s1">repaint</span><span class="s2">();</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// Unused Methods</span>
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">mouseClicked</span><span class="s2">(</span><span class="s1">MouseEvent e</span><span class="s2">) {}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">mouseReleased</span><span class="s2">(</span><span class="s1">MouseEvent e</span><span class="s2">) {}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">mouseEntered</span><span class="s2">(</span><span class="s1">MouseEvent e</span><span class="s2">) {}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">mouseExited</span><span class="s2">(</span><span class="s1">MouseEvent e</span><span class="s2">) {}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">keyTyped</span><span class="s2">(</span><span class="s1">KeyEvent e</span><span class="s2">) {}</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">keyReleased</span><span class="s2">(</span><span class="s1">KeyEvent e</span><span class="s2">) {}</span>
+
+    <span class="s3">// Main Method</span>
+    <span class="s0">public static void </span><span class="s1">main</span><span class="s2">(</span><span class="s1">String</span><span class="s2">[] </span><span class="s1">args</span><span class="s2">) {</span>
+
+        <span class="s1">JFrame frame </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JFrame</span><span class="s2">(</span><span class="s5">&quot;Pathfinding Visualizer&quot;</span><span class="s2">);</span>
+
+        <span class="s1">Main panel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Main</span><span class="s2">();</span>
+
+        <span class="s1">frame</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">panel</span><span class="s2">);</span>
+
+        <span class="s1">frame</span><span class="s2">.</span><span class="s1">pack</span><span class="s2">();</span>
+
+        <span class="s1">frame</span><span class="s2">.</span><span class="s1">setDefaultCloseOperation</span><span class="s2">(</span><span class="s1">JFrame</span><span class="s2">.</span><span class="s1">EXIT_ON_CLOSE</span><span class="s2">);</span>
+
+        <span class="s1">frame</span><span class="s2">.</span><span class="s1">setLocationRelativeTo</span><span class="s2">(</span><span class="s0">null</span><span class="s2">);</span>
+
+        <span class="s1">frame</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>
